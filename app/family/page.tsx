@@ -74,225 +74,241 @@ export default function FamilyPage() {
     createEmptyFormValues,
   );
 
-  useEffect(() => {
-    if (!dragState) {
-      return;
-    }
+ useEffect(() => {
+  if (!dragState) return;
 
-    const previousUserSelect = document.body.style.userSelect;
-    document.body.style.userSelect = "none";
+  const activeDragState = dragState;
 
-    function updateDraggedEvent(
-      nextDay: string,
-      nextStartMinutes: number,
-      nextEndMinutes: number,
-    ) {
-      setCalendarEvents((currentEvents) =>
-        currentEvents.map((event) =>
-          event.id === dragState.eventId
-            ? {
-                ...event,
-                day: nextDay,
-                startMinutes: nextStartMinutes,
-                endMinutes: nextEndMinutes,
-              }
-            : event,
-        ),
-      );
+  const previousUserSelect = document.body.style.userSelect;
+  document.body.style.userSelect = "none";
 
-      setSelectedEvent((currentEvent) =>
-        currentEvent?.id === dragState.eventId
+  function updateDraggedEvent(
+    nextDay: string,
+    nextStartMinutes: number,
+    nextEndMinutes: number,
+  ) {
+    setCalendarEvents((currentEvents) =>
+      currentEvents.map((event) =>
+        event.id === activeDragState.eventId
           ? {
-              ...currentEvent,
+              ...event,
               day: nextDay,
               startMinutes: nextStartMinutes,
               endMinutes: nextEndMinutes,
             }
-          : currentEvent,
-      );
+          : event,
+      ),
+    );
 
-      setFormValues((currentValues) => ({
-        ...currentValues,
-        day: nextDay,
-        startTime: minutesToTime(nextStartMinutes),
-        endTime: minutesToTime(nextEndMinutes),
-      }));
-      setDraftEvent((currentValues) =>
-        currentValues
+    setSelectedEvent((currentEvent) =>
+      currentEvent?.id === activeDragState.eventId
+        ? {
+            ...currentEvent,
+            day: nextDay,
+            startMinutes: nextStartMinutes,
+            endMinutes: nextEndMinutes,
+          }
+        : currentEvent,
+    );
+
+    setFormValues((currentValues) => ({
+      ...currentValues,
+      day: nextDay,
+      startTime: minutesToTime(nextStartMinutes),
+      endTime: minutesToTime(nextEndMinutes),
+    }));
+
+    setDraftEvent((currentValues) =>
+      currentValues
+        ? {
+            ...currentValues,
+            day: nextDay,
+            startTime: minutesToTime(nextStartMinutes),
+            endTime: minutesToTime(nextEndMinutes),
+          }
+        : currentValues,
+    );
+  }
+
+  function handlePointerMove(pointerEvent: PointerEvent) {
+    const deltaX = pointerEvent.clientX - activeDragState.pointerStartX;
+    const deltaPixels = pointerEvent.clientY - activeDragState.pointerStartY;
+
+    const deltaMinutes = (deltaPixels / pixelsPerHour) * 60;
+    const snappedDeltaMinutes = snapMinutes(
+      deltaMinutes,
+      snapIntervalMinutes,
+    );
+
+    const dayOffset = Math.round(deltaX / activeDragState.dayColumnWidth);
+
+    const nextDayIndex = Math.min(
+      Math.max(activeDragState.originalDayIndex + dayOffset, 0),
+      days.length - 1,
+    );
+
+    const nextEvent = clampEventToDay(
+      activeDragState.originalStartMinutes + snappedDeltaMinutes,
+      activeDragState.originalEndMinutes + snappedDeltaMinutes,
+    );
+
+    updateDraggedEvent(
+      days[nextDayIndex],
+      nextEvent.startMinutes,
+      nextEvent.endMinutes,
+    );
+  }
+
+  function handlePointerUp() {
+    setDragState(null);
+  }
+
+  function handleKeyDown(keyboardEvent: KeyboardEvent) {
+    if (keyboardEvent.key !== "Escape") return;
+
+    updateDraggedEvent(
+      activeDragState.originalDay,
+      activeDragState.originalStartMinutes,
+      activeDragState.originalEndMinutes,
+    );
+
+    setDragState(null);
+  }
+
+  window.addEventListener("pointermove", handlePointerMove);
+  window.addEventListener("pointerup", handlePointerUp);
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    document.body.style.userSelect = previousUserSelect;
+    window.removeEventListener("pointermove", handlePointerMove);
+    window.removeEventListener("pointerup", handlePointerUp);
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, [dragState]);
+
+ useEffect(() => {
+  if (!resizeState) return;
+
+  const activeResizeState = resizeState;
+
+  const previousUserSelect = document.body.style.userSelect;
+  document.body.style.userSelect = "none";
+
+  function updateResizedEvent(
+    nextStartMinutes: number,
+    nextEndMinutes: number,
+  ) {
+    setCalendarEvents((currentEvents) =>
+      currentEvents.map((event) =>
+        event.id === activeResizeState.eventId
           ? {
-              ...currentValues,
-              day: nextDay,
-              startTime: minutesToTime(nextStartMinutes),
-              endTime: minutesToTime(nextEndMinutes),
-            }
-          : currentValues,
-      );
-    }
-
-    function handlePointerMove(pointerEvent: PointerEvent) {
-      const deltaX = pointerEvent.clientX - dragState.pointerStartX;
-      const deltaPixels = pointerEvent.clientY - dragState.pointerStartY;
-      const deltaMinutes = (deltaPixels / pixelsPerHour) * 60;
-      const snappedDeltaMinutes = snapMinutes(
-        deltaMinutes,
-        snapIntervalMinutes,
-      );
-      const dayOffset = Math.round(deltaX / dragState.dayColumnWidth);
-      const nextDayIndex = Math.min(
-        Math.max(dragState.originalDayIndex + dayOffset, 0),
-        days.length - 1,
-      );
-      const nextEvent = clampEventToDay(
-        dragState.originalStartMinutes + snappedDeltaMinutes,
-        dragState.originalEndMinutes + snappedDeltaMinutes,
-      );
-
-      updateDraggedEvent(
-        days[nextDayIndex],
-        nextEvent.startMinutes,
-        nextEvent.endMinutes,
-      );
-    }
-
-    function handlePointerUp() {
-      setDragState(null);
-    }
-
-    function handleKeyDown(keyboardEvent: KeyboardEvent) {
-      if (keyboardEvent.key !== "Escape") {
-        return;
-      }
-
-      updateDraggedEvent(
-        dragState.originalDay,
-        dragState.originalStartMinutes,
-        dragState.originalEndMinutes,
-      );
-      setDragState(null);
-    }
-
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", handlePointerUp);
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.body.style.userSelect = previousUserSelect;
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [dragState]);
-
-  useEffect(() => {
-    if (!resizeState) {
-      return;
-    }
-
-    const previousUserSelect = document.body.style.userSelect;
-    document.body.style.userSelect = "none";
-
-    function updateResizedEvent(nextStartMinutes: number, nextEndMinutes: number) {
-      setCalendarEvents((currentEvents) =>
-        currentEvents.map((event) =>
-          event.id === resizeState.eventId
-            ? {
-                ...event,
-                startMinutes: nextStartMinutes,
-                endMinutes: nextEndMinutes,
-              }
-            : event,
-        ),
-      );
-
-      setSelectedEvent((currentEvent) =>
-        currentEvent?.id === resizeState.eventId
-          ? {
-              ...currentEvent,
+              ...event,
               startMinutes: nextStartMinutes,
               endMinutes: nextEndMinutes,
             }
-          : currentEvent,
-      );
+          : event,
+      ),
+    );
 
-      setFormValues((currentValues) => ({
-        ...currentValues,
-        startTime: minutesToTime(nextStartMinutes),
-        endTime: minutesToTime(nextEndMinutes),
-      }));
-      setDraftEvent((currentValues) =>
-        currentValues
-          ? {
-              ...currentValues,
-              startTime: minutesToTime(nextStartMinutes),
-              endTime: minutesToTime(nextEndMinutes),
-            }
-          : currentValues,
-      );
-    }
+    setSelectedEvent((currentEvent) =>
+      currentEvent?.id === activeResizeState.eventId
+        ? {
+            ...currentEvent,
+            startMinutes: nextStartMinutes,
+            endMinutes: nextEndMinutes,
+          }
+        : currentEvent,
+    );
 
-    function handlePointerMove(pointerEvent: PointerEvent) {
-      const deltaPixels = pointerEvent.clientY - resizeState.pointerStartY;
-      const deltaMinutes = (deltaPixels / pixelsPerHour) * 60;
-      const snappedDeltaMinutes = snapMinutes(
-        deltaMinutes,
-        snapIntervalMinutes,
-      );
+    setFormValues((currentValues) => ({
+      ...currentValues,
+      startTime: minutesToTime(nextStartMinutes),
+      endTime: minutesToTime(nextEndMinutes),
+    }));
 
-      if (resizeState.edge === "top") {
-        const latestAllowedStart =
-          resizeState.originalEndMinutes - minimumEventDurationMinutes;
-        const nextStartMinutes = Math.min(
-          Math.max(
-            resizeState.originalStartMinutes + snappedDeltaMinutes,
-            calendarStartMinutes,
-          ),
-          latestAllowedStart,
-        );
+    setDraftEvent((currentValues) =>
+      currentValues
+        ? {
+            ...currentValues,
+            startTime: minutesToTime(nextStartMinutes),
+            endTime: minutesToTime(nextEndMinutes),
+          }
+        : currentValues,
+    );
+  }
 
-        updateResizedEvent(nextStartMinutes, resizeState.originalEndMinutes);
-        return;
-      }
+  function handlePointerMove(pointerEvent: PointerEvent) {
+    const deltaPixels = pointerEvent.clientY - activeResizeState.pointerStartY;
 
-      const earliestAllowedEnd =
-        resizeState.originalStartMinutes + minimumEventDurationMinutes;
-      const nextEndMinutes = Math.max(
-        Math.min(
-          resizeState.originalEndMinutes + snappedDeltaMinutes,
-          calendarEndMinutes,
+    const deltaMinutes = (deltaPixels / pixelsPerHour) * 60;
+    const snappedDeltaMinutes = snapMinutes(
+      deltaMinutes,
+      snapIntervalMinutes,
+    );
+
+    if (activeResizeState.edge === "top") {
+      const latestAllowedStart =
+        activeResizeState.originalEndMinutes - minimumEventDurationMinutes;
+
+      const nextStartMinutes = Math.min(
+        Math.max(
+          activeResizeState.originalStartMinutes + snappedDeltaMinutes,
+          calendarStartMinutes,
         ),
-        earliestAllowedEnd,
+        latestAllowedStart,
       );
-
-      updateResizedEvent(resizeState.originalStartMinutes, nextEndMinutes);
-    }
-
-    function handlePointerUp() {
-      setResizeState(null);
-    }
-
-    function handleKeyDown(keyboardEvent: KeyboardEvent) {
-      if (keyboardEvent.key !== "Escape") {
-        return;
-      }
 
       updateResizedEvent(
-        resizeState.originalStartMinutes,
-        resizeState.originalEndMinutes,
+        nextStartMinutes,
+        activeResizeState.originalEndMinutes,
       );
-      setResizeState(null);
+      return;
     }
 
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", handlePointerUp);
-    window.addEventListener("keydown", handleKeyDown);
+    const earliestAllowedEnd =
+      activeResizeState.originalStartMinutes + minimumEventDurationMinutes;
 
-    return () => {
-      document.body.style.userSelect = previousUserSelect;
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [resizeState]);
+    const nextEndMinutes = Math.max(
+      Math.min(
+        activeResizeState.originalEndMinutes + snappedDeltaMinutes,
+        calendarEndMinutes,
+      ),
+      earliestAllowedEnd,
+    );
+
+    updateResizedEvent(
+      activeResizeState.originalStartMinutes,
+      nextEndMinutes,
+    );
+  }
+
+  function handlePointerUp() {
+    setResizeState(null);
+  }
+
+  function handleKeyDown(keyboardEvent: KeyboardEvent) {
+    if (keyboardEvent.key !== "Escape") return;
+
+    updateResizedEvent(
+      activeResizeState.originalStartMinutes,
+      activeResizeState.originalEndMinutes,
+    );
+
+    setResizeState(null);
+  }
+
+  window.addEventListener("pointermove", handlePointerMove);
+  window.addEventListener("pointerup", handlePointerUp);
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    document.body.style.userSelect = previousUserSelect;
+    window.removeEventListener("pointermove", handlePointerMove);
+    window.removeEventListener("pointerup", handlePointerUp);
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, [resizeState]);
 
   useEffect(() => {
     if (!isEditorOpen || dragState || resizeState) {

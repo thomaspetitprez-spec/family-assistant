@@ -8,6 +8,8 @@ export type FamilyEvent = {
   title: string;
   child: string;
   day: string;
+  notes?: string;
+  needsPreparation?: boolean;
   startMinutes: number;
   endMinutes: number;
   location?: string;

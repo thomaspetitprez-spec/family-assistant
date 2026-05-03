@@ -1,17 +1,19 @@
-import type { ChildPlanningItem } from "../page";
+import type { FamilyEvent  } from "../types";
 import type { SchoolHoliday } from "@/lib/services/schoolHolidaysService";
 
 type WeeklyChildCalendarProps = {
   weekDays: string[];
-  planningItems: ChildPlanningItem[];
+  planningItems: FamilyEvent[];
   schoolHolidays: SchoolHoliday[];
 };
 
-const typeStyles: Record<ChildPlanningItem["type"], string> = {
+const typeStyles: Record<FamilyEvent["category"], string> = {
   school: "border-sky-200 bg-sky-50 text-sky-900",
+  kindy: "border-pink-200 bg-pink-50 text-pink-900",
+  homework: "border-amber-200 bg-amber-50 text-amber-900",
+  family: "border-gray-200 bg-gray-50 text-gray-900",
   activity: "border-emerald-200 bg-emerald-50 text-emerald-900",
-  care: "border-violet-200 bg-violet-50 text-violet-900",
-  family: "border-amber-200 bg-amber-50 text-amber-900",
+  detected: "border-violet-200 bg-violet-50 text-violet-900",
 };
 
 export default function WeeklyChildCalendar({
@@ -32,9 +34,7 @@ export default function WeeklyChildCalendar({
 
       <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-7">
         {weekDays.map((day) => {
-          const dayItems = planningItems.filter((item) =>
-            item.startDateTime.startsWith(day),
-          );
+	  const dayItems = planningItems.filter((item) => item.day === day);
           const holiday = schoolHolidays.find(
             (schoolHoliday) =>
               day >= schoolHoliday.startDate && day <= schoolHoliday.endDate,
@@ -75,18 +75,18 @@ export default function WeeklyChildCalendar({
   );
 }
 
-function PlanningBlock({ item }: { item: ChildPlanningItem }) {
+function PlanningBlock({ item }: { item: FamilyEvent }) {
   return (
-    <div className={`rounded-xl border p-3 ${typeStyles[item.type]}`}>
+    <div className={`rounded-xl border p-3 ${typeStyles[item.category]}`}>
       <div className="flex items-start justify-between gap-2">
         <h3 className="text-sm font-semibold">{item.title}</h3>
         <span className="rounded-full bg-white/70 px-2 py-1 text-[11px] font-medium capitalize">
-          {item.type}
+          {item.category}
         </span>
       </div>
-      <p className="mt-1 text-xs font-medium">{item.childName}</p>
+      <p className="mt-1 text-xs font-medium">{item.child}</p>
       <p className="mt-2 text-xs">
-        {formatTime(item.startDateTime)} - {formatTime(item.endDateTime)}
+        {formatMinutes(item.startMinutes)} - {formatMinutes(item.endMinutes)}
       </p>
       <p className="mt-2 text-xs leading-5">{item.notes}</p>
       {item.needsPreparation && (
@@ -116,4 +116,10 @@ function formatTime(dateTime: string) {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+function formatMinutes(minutes: number) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
