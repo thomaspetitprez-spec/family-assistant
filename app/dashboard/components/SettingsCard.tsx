@@ -25,15 +25,15 @@ export default function SettingsCard({
   }
 
   return (
-    <section className="rounded-3xl bg-[#fffaf2] p-4 shadow-sm ring-1 ring-amber-100 sm:p-5">
-      <p className="text-sm font-medium uppercase tracking-wide text-stone-500">
+    <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-200 sm:p-5">
+      <p className="text-xs font-semibold uppercase text-stone-500">
         Family rules
       </p>
-      <h2 className="mt-1 text-2xl font-semibold text-stone-950">
+      <h2 className="mt-1 text-xl font-semibold text-stone-950">
         Schedule settings
       </h2>
 
-      <div className="mt-5 grid gap-4">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <SettingsField
           label="School pickup time"
           type="time"
@@ -79,7 +79,7 @@ function SettingsField({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="block rounded-2xl border border-amber-100 bg-white/80 p-4">
+    <label className="block rounded-xl border border-stone-200 bg-stone-50 p-4">
       <span className="text-sm font-medium text-stone-700">{label}</span>
       <div className="mt-2 flex items-center gap-3">
         <input
@@ -87,7 +87,7 @@ function SettingsField({
           min={type === "number" ? 0 : undefined}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none focus:border-stone-400"
+          className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none focus:border-stone-500"
         />
         {suffix && <span className="text-sm text-stone-500">{suffix}</span>}
       </div>

@@ -465,93 +465,138 @@ export default function FamilyPage() {
 
   return (
     <main
-      className={`min-h-screen bg-gray-50 p-6 ${
+      className={`min-h-screen overflow-x-hidden bg-stone-100 px-4 py-4 text-stone-950 sm:px-6 sm:py-6 lg:px-8 ${
         dragState || resizeState ? "select-none" : ""
       }`}
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Standard School Week Template</h1>
-          <p className="mt-2 text-gray-600">
-            This template applies every normal school week.
-          </p>
+      <div className="mx-auto flex max-w-7xl flex-col gap-5">
+        <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase text-stone-500">
+                Family template
+              </p>
+              <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+                Standard School Week Template
+              </h1>
+              <p className="mt-1 text-sm leading-6 text-stone-600">
+                This template applies every normal school week.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={openCreateEvent}
+              className="w-fit rounded-lg bg-stone-950 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-stone-800"
+            >
+              Create new event
+            </button>
+          </div>
         </div>
 
-        <button
-          type="button"
-          onClick={openCreateEvent}
-          className="rounded-xl bg-gray-950 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
-        >
-          Create new event
-        </button>
-      </div>
-
-      <div className="mt-6 rounded-2xl bg-white p-4 shadow-sm">
-        <p className="text-sm text-gray-700">
+        <div className="rounded-xl border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">
           During Victoria school holidays, school-week routines will be disabled
           in the dashboard. The app will rely on detected camps, childcare,
           travel and activities instead.
-        </p>
-      </div>
+        </div>
 
-      <div className="mt-6 flex gap-3">
-        {children.map((child) => (
-          <div key={child.name} className="rounded-xl bg-white px-4 py-2 shadow-sm">
-            <div className="font-medium">{child.name}</div>
-            <div className="text-xs text-gray-500">{child.level}</div>
-          </div>
-        ))}
-      </div>
-
-      <section className="mt-8 rounded-2xl bg-white p-4 shadow-sm">
-        <div className="grid grid-cols-[64px_repeat(7,1fr)] border-b">
-          <div />
-          {days.map((day) => (
-            <div key={day} className="border-l p-2 text-center font-semibold">
-              {day}
+        <div className="flex gap-3 overflow-x-auto pb-1">
+          {children.map((child) => (
+            <div
+              key={child.name}
+              className="min-w-36 rounded-xl border border-stone-200 bg-white px-4 py-3 shadow-sm"
+            >
+              <div className="font-medium">{child.name}</div>
+              <div className="text-xs text-stone-500">{child.level}</div>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-[64px_repeat(7,1fr)]">
-          <div>
-            {hours.map((hour) => (
-              <div key={hour} className="h-16 border-b pr-2 text-right text-xs text-gray-400">
-                {hour}:00
+        <section className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+          <div className="border-b border-stone-200 bg-stone-50 px-4 py-3">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase text-stone-500">
+                  Visual week
+                </p>
+                <h2 className="mt-1 text-xl font-semibold text-stone-950">
+                  Weekly calendar
+                </h2>
               </div>
-            ))}
+              <p className="text-sm text-stone-600">School week template</p>
+            </div>
           </div>
 
-          {days.map((day) => (
-            <div key={day} className="relative h-[896px] border-l">
-              {hours.map((hour) => (
-                <div key={hour} className="h-16 border-b border-gray-100" />
-              ))}
-
-              {groupOverlappingEvents(getEventsForDay(day, calendarEvents))
-                .flatMap((group) =>
-                  group.map((event) => calculateEventLayout(event, group)),
-                )
-                .map((event) => (
-                  <CalendarEventButton
-                    key={event.id}
-                    event={event}
-                    isSelected={selectedEvent?.id === event.id}
-                    isDragging={dragState?.eventId === event.id}
-                    isResizing={resizeState?.eventId === event.id}
-                    onStartDrag={(pointerX, pointerY, dayColumnWidth) =>
-                      startEventDrag(event, pointerX, pointerY, dayColumnWidth)
-                    }
-                    onOpenEditor={() => openEditEvent(event)}
-                    onStartResize={(edge, pointerY) =>
-                      startEventResize(event, edge, pointerY)
-                    }
-                  />
+          <div className="overflow-x-auto">
+            <div className="min-w-[980px]">
+              <div className="grid grid-cols-[72px_repeat(7,minmax(128px,1fr))] border-b border-stone-200">
+                <div className="sticky left-0 z-20 border-r border-stone-200 bg-white" />
+                {days.map((day) => (
+                  <div
+                    key={day}
+                    className="border-r border-stone-200 p-3 text-center text-sm font-semibold text-stone-700 last:border-r-0"
+                  >
+                    {day}
+                  </div>
                 ))}
+              </div>
+
+              <div className="grid grid-cols-[72px_repeat(7,minmax(128px,1fr))]">
+                <div className="sticky left-0 z-20 border-r border-stone-200 bg-stone-50">
+                  {hours.map((hour) => (
+                    <div
+                      key={hour}
+                      className="h-16 border-b border-stone-200 pr-2 text-right text-xs text-stone-500"
+                    >
+                      {String(hour).padStart(2, "0")}:00
+                    </div>
+                  ))}
+                </div>
+
+                {days.map((day) => (
+                  <div
+                    key={day}
+                    className="relative h-[896px] border-r border-stone-200 last:border-r-0"
+                  >
+                    {hours.map((hour) => (
+                      <div
+                        key={hour}
+                        className="h-16 border-b border-stone-100"
+                      />
+                    ))}
+
+                    {groupOverlappingEvents(getEventsForDay(day, calendarEvents))
+                      .flatMap((group) =>
+                        group.map((event) => calculateEventLayout(event, group)),
+                      )
+                      .map((event) => (
+                        <CalendarEventButton
+                          key={event.id}
+                          event={event}
+                          isSelected={selectedEvent?.id === event.id}
+                          isDragging={dragState?.eventId === event.id}
+                          isResizing={resizeState?.eventId === event.id}
+                          onStartDrag={(pointerX, pointerY, dayColumnWidth) =>
+                            startEventDrag(
+                              event,
+                              pointerX,
+                              pointerY,
+                              dayColumnWidth,
+                            )
+                          }
+                          onOpenEditor={() => openEditEvent(event)}
+                          onStartResize={(edge, pointerY) =>
+                            startEventResize(event, edge, pointerY)
+                          }
+                        />
+                      ))}
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      </div>
 
       {isEditorOpen && (
         <EventEditor
@@ -616,7 +661,7 @@ function CalendarEventButton({
           dayColumnWidth,
         );
       }}
-      className={`absolute cursor-grab touch-none overflow-hidden rounded-xl border p-2 text-left text-xs opacity-90 shadow-sm active:cursor-grabbing ${getEventColor(
+      className={`absolute cursor-grab touch-none overflow-hidden rounded-lg border px-2 py-1.5 text-left text-xs leading-tight opacity-95 shadow-sm active:cursor-grabbing ${getEventColor(
         event.child,
       )} ${
         isSelected ? "z-10 ring-2 ring-gray-950 ring-offset-1" : ""
@@ -648,10 +693,10 @@ function CalendarEventButton({
         <div className="h-full rounded-full bg-current/20" />
       ) : (
         <>
-          <div className="truncate font-semibold">{event.title}</div>
+          <div className="truncate font-semibold leading-snug">{event.title}</div>
           {!isSmall && (
             <>
-              <div className="truncate">{event.child}</div>
+              <div className="truncate leading-snug">{event.child}</div>
               <div className="truncate opacity-70">
                 {minutesToTime(event.startMinutes)} -{" "}
                 {minutesToTime(event.endMinutes)}

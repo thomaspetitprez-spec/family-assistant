@@ -319,26 +319,30 @@ export default function Dashboard() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7efe4] px-4 py-6 text-stone-950 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6">
-        <div className="sticky top-[76px] z-20 -mx-4 bg-[#f7efe4]/95 px-4 pb-2 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-          <DashboardHeader
-            familyName="Family Assistant"
-            nextEvent={visibleEvents[0].title}
-            eventCount={visibleEvents.length}
-            actionCount={activeActions.length}
-            urgentCount={activeActions.filter((action) => action.priority === "urgent").length}
-          />
-        </div>
+    <main className="min-h-screen overflow-x-hidden bg-stone-100 px-4 py-4 text-stone-950 sm:px-6 sm:py-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-5">
+        <DashboardHeader
+          familyName="Family Assistant"
+          eventCount={visibleEvents.length}
+          actionCount={activeActions.length}
+          urgentCount={activeActions.filter((action) => action.priority === "urgent").length}
+        />
 
-        <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="rounded-3xl bg-[#fffaf2] p-4 shadow-sm ring-1 ring-amber-100 sm:p-5 lg:col-span-2">
+        <DashboardAlerts
+          nextEvent={visibleEvents[0].title}
+          actionCount={activeActions.length}
+          warningCount={intelligence.warnings.length}
+          conflictCount={conflicts.length}
+        />
+
+        <section className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.55fr)]">
+          <div id="week-plan" className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-200 sm:p-5 xl:col-span-2">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-medium uppercase tracking-wide text-stone-500">
+                <p className="text-xs font-semibold uppercase text-stone-500">
                   Real week projection
                 </p>
-                <h2 className="mt-1 text-2xl font-semibold text-stone-950">
+                <h2 className="mt-1 text-xl font-semibold text-stone-950 sm:text-2xl">
                   Week of {formatDisplayDate(weekPlan.weekStartDate)}
                 </h2>
                 <p className="mt-1 text-sm font-medium text-stone-600">
@@ -346,26 +350,26 @@ export default function Dashboard() {
                 </p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => moveWeek(-7)}
-                  className="rounded-xl border border-amber-200 bg-white px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-amber-50"
+                  className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50"
                 >
-                  Previous Week
+                  Previous
                 </button>
                 <button
                   type="button"
                   onClick={() => moveWeek(7)}
-                  className="rounded-xl bg-stone-950 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-800"
+                  className="rounded-lg bg-stone-950 px-3 py-2 text-sm font-semibold text-white hover:bg-stone-800"
                 >
-                  Next Week
+                  Next
                 </button>
               </div>
             </div>
 
             {weekPlan.isHolidayWeek && (
-              <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-medium text-amber-900">
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-medium text-amber-900">
                 Holiday Week: school, kindy and homework routines are disabled.
                 Timed detected items still appear in the weekly plan.
               </div>
@@ -376,8 +380,9 @@ export default function Dashboard() {
               isHolidayWeek={weekPlan.isHolidayWeek}
             />
 
-            <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            <div className="mt-4 grid gap-3 lg:grid-cols-2">
               <WeekPlanList
+                id="detected-items"
                 title="Detected actions"
                 items={actionOnlyDetectedItems.map((item) => ({
                   id: item.id,
@@ -385,29 +390,30 @@ export default function Dashboard() {
                 }))}
               />
               <WeekPlanList
+                id="warnings"
                 title="Warnings"
                 items={intelligence.warnings.map(formatIntelligenceItem)}
               />
             </div>
           </div>
 
-          <div className="rounded-3xl bg-[#fffaf2] p-4 shadow-sm ring-1 ring-amber-100 sm:p-5">
+          <div id="family-events" className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-200 sm:p-5">
             <SectionTitle eyebrow="Coming up" title="Family events" />
 
             <div className="relative mt-4">
-              <div className="max-h-[380px] overflow-y-auto pr-2">
-                <div className="grid gap-4 sm:grid-cols-2">
+              <div className="max-h-[420px] overflow-y-auto pr-1">
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                   {visibleEvents.map((event) => (
                     <EventCard key={event.id} event={event} />
                   ))}
                 </div>
               </div>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#fffaf2] to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-white to-transparent" />
             </div>
           </div>
 
-          <div className="space-y-6 lg:sticky lg:top-44 lg:self-start">
-            <div className="rounded-3xl bg-[#fffaf2] p-4 shadow-sm ring-1 ring-amber-100 sm:p-5">
+          <div className="space-y-5 xl:self-start">
+            <div id="smart-warnings" className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-200 sm:p-5">
               <SectionTitle eyebrow="Planning intelligence" title="Smart warnings" />
               <IntelligencePanel
                 emptyMessage="No planning warnings for this week."
@@ -415,7 +421,7 @@ export default function Dashboard() {
               />
             </div>
 
-            <div className="rounded-3xl bg-[#fffaf2] p-4 shadow-sm ring-1 ring-amber-100 sm:p-5">
+            <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-200 sm:p-5">
               <SectionTitle eyebrow="Suggested next steps" title="Smart actions" />
               <IntelligencePanel
                 emptyMessage="No suggested actions from detected items yet."
@@ -423,7 +429,7 @@ export default function Dashboard() {
               />
             </div>
 
-            <div className="rounded-3xl bg-[#f4ead8] p-4 shadow-sm ring-1 ring-amber-200 sm:p-5">
+            <div id="actions" className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-200 sm:p-5">
               <SectionTitle eyebrow="Needs attention" title="Actions" />
               <ActionTabs
                 activeTab={activeTab}
@@ -432,7 +438,7 @@ export default function Dashboard() {
                 onChangeTab={setActiveTab}
               />
 
-              <div className="mt-4 grid gap-4">
+              <div className="mt-4 grid gap-3">
                 {activeTab === "active" &&
                   activeActions.map((action) => (
                     <ActionCard
@@ -459,9 +465,9 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded-3xl bg-[#fffaf2] p-4 shadow-sm ring-1 ring-amber-100 sm:p-5">
+            <div id="conflicts" className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-200 sm:p-5">
               <SectionTitle eyebrow="Calendar check" title="Potential conflicts" />
-              <div className="mt-4 grid gap-4">
+              <div className="mt-4 grid gap-3">
                 {conflicts.map((conflict) => (
                   <ConflictCard key={conflict.id} conflict={conflict} />
                 ))}
@@ -470,7 +476,7 @@ export default function Dashboard() {
           </div>
         </section>
 
-        <section>
+        <section id="settings">
           <SettingsCard
             rules={scheduleRules}
             onChangeRules={setScheduleRules}
@@ -478,6 +484,60 @@ export default function Dashboard() {
         </section>
       </div>
     </main>
+  );
+}
+
+function DashboardAlerts({
+  nextEvent,
+  actionCount,
+  warningCount,
+  conflictCount,
+}: {
+  nextEvent: string;
+  actionCount: number;
+  warningCount: number;
+  conflictCount: number;
+}) {
+  const alerts = [
+    {
+      href: "#family-events",
+      label: "Next event",
+      value: nextEvent,
+    },
+    {
+      href: "#actions",
+      label: "Open actions",
+      value: `${actionCount} active`,
+    },
+    {
+      href: "#smart-warnings",
+      label: "Warnings",
+      value: warningCount ? `${warningCount} to review` : "None",
+    },
+    {
+      href: "#conflicts",
+      label: "Conflicts",
+      value: conflictCount ? `${conflictCount} found` : "None",
+    },
+  ];
+
+  return (
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Dashboard alerts">
+      {alerts.map((alert) => (
+        <a
+          key={alert.label}
+          href={alert.href}
+          className="rounded-xl border border-stone-200 bg-white p-3 shadow-sm transition hover:border-stone-300 hover:bg-stone-50"
+        >
+          <p className="text-xs font-semibold uppercase text-stone-500">
+            {alert.label}
+          </p>
+          <p className="mt-1 truncate text-sm font-semibold text-stone-950">
+            {alert.value}
+          </p>
+        </a>
+      ))}
+    </section>
   );
 }
 
@@ -489,8 +549,8 @@ function ReadOnlyWeekCalendar({
   isHolidayWeek: boolean;
 }) {
   return (
-    <div className="mt-5 overflow-hidden rounded-2xl border border-amber-100 bg-white/80">
-      <div className="border-b border-amber-100 bg-[#f8f0e5] px-4 py-3">
+    <div className="mt-4 overflow-hidden rounded-xl border border-stone-200 bg-white">
+      <div className="border-b border-stone-200 bg-stone-50 px-4 py-3">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="font-semibold text-stone-950">Generated week calendar</h3>
           <p className="text-sm text-stone-600">
@@ -502,25 +562,25 @@ function ReadOnlyWeekCalendar({
       </div>
 
       <div className="overflow-x-auto">
-        <div className="min-w-[900px]">
-          <div className="grid grid-cols-[64px_repeat(7,minmax(0,1fr))] border-b border-amber-100 bg-white">
-            <div className="border-r border-amber-100" />
+        <div className="min-w-[980px]">
+          <div className="grid grid-cols-[72px_repeat(7,minmax(128px,1fr))] border-b border-stone-200 bg-white">
+            <div className="sticky left-0 z-20 border-r border-stone-200 bg-white" />
             {days.map((day) => (
               <div
                 key={day}
-                className="border-r border-amber-100 px-3 py-3 text-center text-sm font-semibold text-stone-700 last:border-r-0"
+                className="border-r border-stone-200 px-3 py-3 text-center text-sm font-semibold text-stone-700 last:border-r-0"
               >
                 {day}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-[64px_repeat(7,minmax(0,1fr))]">
-            <div className="relative border-r border-amber-100 bg-[#fbf6ee]">
+          <div className="grid grid-cols-[72px_repeat(7,minmax(128px,1fr))]">
+            <div className="sticky left-0 z-20 border-r border-stone-200 bg-stone-50">
               {hours.map((hour) => (
                 <div
                   key={hour}
-                  className="border-b border-amber-100 pr-2 text-right text-xs text-stone-500"
+                  className="border-b border-stone-200 pr-2 text-right text-xs text-stone-500"
                   style={{ height: pixelsPerHour }}
                 >
                   {String(hour).padStart(2, "0")}:00
@@ -538,13 +598,13 @@ function ReadOnlyWeekCalendar({
               return (
                 <div
                   key={day}
-                  className="relative border-r border-amber-100 bg-white last:border-r-0"
+                  className="relative border-r border-stone-200 bg-white last:border-r-0"
                   style={{ height: hours.length * pixelsPerHour }}
                 >
                   {hours.map((hour) => (
                     <div
                       key={hour}
-                      className="border-b border-amber-50"
+                      className="border-b border-stone-100"
                       style={{ height: pixelsPerHour }}
                     />
                   ))}
@@ -593,7 +653,7 @@ function ReadOnlyCalendarEvent({
           <p className="truncate font-semibold">{event.title}</p>
           {showDetails && (
             <p className="truncate opacity-80">
-              {event.child} · {minutesToTime(event.startMinutes)}-
+              {event.child} - {minutesToTime(event.startMinutes)}-
               {minutesToTime(event.endMinutes)}
             </p>
           )}
@@ -628,31 +688,33 @@ function getDashboardEventColor(event: WeekCalendarEvent) {
 function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
     <div>
-      <p className="text-sm font-medium uppercase tracking-wide text-stone-500">
+      <p className="text-xs font-semibold uppercase text-stone-500">
         {eyebrow}
       </p>
-      <h2 className="mt-1 text-2xl font-semibold text-stone-950">{title}</h2>
+      <h2 className="mt-1 text-xl font-semibold text-stone-950">{title}</h2>
     </div>
   );
 }
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-amber-200 bg-white/60 p-5 text-sm text-stone-600">
+    <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 p-4 text-sm text-stone-600">
       {message}
     </div>
   );
 }
 
 function WeekPlanList({
+  id,
   title,
   items,
 }: {
+  id: string;
   title: string;
   items: { id: string; text: string }[];
 }) {
   return (
-    <div className="rounded-2xl border border-amber-100 bg-white/70 p-4">
+    <div id={id} className="rounded-xl border border-stone-200 bg-stone-50 p-4">
       <h3 className="font-semibold text-stone-950">{title}</h3>
       <div className="mt-3 grid gap-2">
         {items.length > 0 ? (
@@ -682,13 +744,13 @@ function IntelligencePanel({
         items.map((item) => (
           <div
             key={item.id}
-            className="rounded-2xl border border-amber-100 bg-white/70 p-4"
+            className="rounded-xl border border-stone-200 bg-stone-50 p-4"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-semibold text-stone-950">{item.title}</p>
                 <p className="mt-1 text-sm text-stone-600">
-                  {item.relatedChild ? `${item.relatedChild} · ` : ""}
+                  {item.relatedChild ? `${item.relatedChild} - ` : ""}
                   Source: {item.source}
                 </p>
               </div>

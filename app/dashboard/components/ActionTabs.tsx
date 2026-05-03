@@ -12,7 +12,7 @@ export default function ActionTabs({
   onChangeTab,
 }: ActionTabsProps) {
   return (
-    <div className="mt-4 flex rounded-xl bg-white/70 p-1 ring-1 ring-amber-100">
+    <div className="mt-4 flex rounded-xl bg-stone-100 p-1 ring-1 ring-stone-200">
       <TabButton
         isSelected={activeTab === "active"}
         label={`Active actions (${activeCount})`}
@@ -43,7 +43,7 @@ function TabButton({
       className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition ${
         isSelected
           ? "bg-stone-900 text-white shadow-sm"
-          : "text-stone-600 hover:bg-amber-50"
+          : "text-stone-600 hover:bg-white"
       }`}
     >
       {label}

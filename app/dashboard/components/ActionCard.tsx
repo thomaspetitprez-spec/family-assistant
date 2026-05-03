@@ -32,15 +32,15 @@ export default function ActionCard({
 }: ActionCardProps) {
   return (
     <article
-      className={`rounded-2xl border p-5 shadow-sm ${
+      className={`rounded-xl border p-4 shadow-sm ${
         isCompleted
           ? "border-emerald-200 bg-emerald-50/90"
-          : "border-amber-100 bg-white/85"
+          : "border-stone-200 bg-white"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <h3
-          className={`text-lg font-semibold ${
+          className={`text-base font-semibold ${
             isCompleted ? "text-emerald-900 line-through" : "text-stone-950"
           }`}
         >
@@ -54,19 +54,19 @@ export default function ActionCard({
       </div>
 
       <p
-        className={`mt-3 text-sm leading-6 ${
+        className={`mt-2 text-sm leading-6 ${
           isCompleted ? "text-emerald-800" : "text-stone-600"
         }`}
       >
         {action.description}
       </p>
 
-      <div className="mt-5 flex flex-wrap items-center gap-2">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         <span
           className={`rounded-full px-3 py-1 text-xs font-medium ${
             isCompleted
               ? "bg-white text-emerald-800"
-              : "bg-amber-50 text-stone-700"
+              : "bg-stone-100 text-stone-700"
           }`}
         >
           Owner: {action.owner}
@@ -75,7 +75,7 @@ export default function ActionCard({
           className={`rounded-full px-3 py-1 text-xs font-medium ${
             isCompleted
               ? "bg-white text-emerald-800"
-              : "bg-amber-50 text-stone-700"
+              : "bg-stone-100 text-stone-700"
           }`}
         >
           Due: {action.due}
@@ -83,18 +83,18 @@ export default function ActionCard({
       </div>
 
       {showActions && (
-        <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+        <div className="mt-4 flex flex-wrap gap-2">
           <button
             type="button"
             onClick={onMarkDone}
-            className="w-full rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700 sm:w-auto"
+            className="rounded-lg bg-stone-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-stone-700"
           >
             Mark as done
           </button>
           <button
             type="button"
             onClick={onDelete}
-            className="w-full rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 sm:w-auto"
+            className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
           >
             Delete
           </button>
